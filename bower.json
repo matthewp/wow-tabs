@@ -1,0 +1,26 @@
+{
+  "name": "wow-tabs",
+  "version": "0.1.0",
+  "homepage": "https://github.com/matthewp/wow-tabs",
+  "authors": [
+    "Matthew Phillips <matthew@matthewphillips.info>"
+  ],
+  "description": "The last tabs you'll need",
+  "main": "wowtabs.html",
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "web",
+    "components",
+    "tabs"
+  ],
+  "license": "BSD-2-Clause",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
