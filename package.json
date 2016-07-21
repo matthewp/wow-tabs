@@ -1,6 +1,6 @@
 {
   "name": "wow-tabs",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The last tabs implementation you'll ever need.",
   "main": "wowtabs.html",
   "directories": {
@@ -11,8 +11,7 @@
   },
   "keywords": [
     "tabs",
-    "web",
-    "components"
+    "web-components"
   ],
   "files": [
     "wowtabs.html"
