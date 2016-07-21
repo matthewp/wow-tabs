@@ -14,6 +14,9 @@
     "web",
     "components"
   ],
+  "files": [
+    "wowtabs.html"
+  ],
   "author": "Matthew Phillips",
   "license": "BSD-2-Clause",
   "devDependencies": {
