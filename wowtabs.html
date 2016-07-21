@@ -1,0 +1,214 @@
+<template class="tabs-template">
+  <style>
+    :host {
+      display: flex;
+      flex-direction: column;
+    }
+
+    :host([position=bottom]) ul {
+      order: 1;
+    }
+
+    :host([position=left], [position=right]) {
+      flex-direction: row;
+    }
+
+    :host([position=right]) ul {
+      order: 1;
+    }
+
+    :host ul {
+      list-style-type: none;
+      display: flex;
+      margin: 0;
+      padding: 0;
+    }
+
+    :host li {
+      cursor: pointer;
+      flex: inherit;
+      color: inherit;
+      background: #E6E6E6;
+      padding: .5em 1em;
+      margin-right: .2em;
+    }
+  </style>
+  <ul></ul>
+  <div>
+    <content></content>
+  </div>
+</template>
+<script>
+(function(){
+  var doc = (document._currentScript || document.currentScript).ownerDocument;
+  var tabsTemplate = doc.querySelector('.tabs-template');
+  var forEach = Array.prototype.forEach;
+
+  shimStyles(tabsTemplate.content);
+
+  function shimStyles(root) {
+    if (window.ShadowDOMPolyfill) {
+      WebComponents.ShadowCSS.shimStyling(root, 'wow-tabs');
+    }
+  }
+
+  class WowPanel extends HTMLElement {
+    attributeChangedCallback(attributeName, oldValue, newValue) {
+      if(attributeName === 'title') {
+        this.informParentTabs(newValue);
+      }
+    }
+
+    get title() {
+      return this.getAttribute('title');
+    }
+
+    set title(title) {
+      this.setAttribute('title', title);
+    }
+
+    informParentTabs(title) {
+      var parent = this.parentNode;
+      if(parent && parent.nodeName === 'WOW-TABS') {
+        parent.handleTitle(this, title);
+      }
+    }
+  }
+
+  class WowTabs extends HTMLElement {
+    createdCallback() {
+      this.selected = null;
+      this.tabMap = new WeakMap();
+      this.panelMap = new WeakMap();
+      this.displayMap = new WeakMap();
+    }
+
+    attachedCallback() {
+      this.createShadowRoot();
+      this.shadowRoot.appendChild(
+        document.importNode(tabsTemplate.content, true)
+      );
+
+      this.makeTabsFromPanels();
+
+      this.shadowRoot.querySelector('ul').addEventListener('click', this);
+
+      if(!this.mutationObserver) {
+        this.mutationObserver = new MutationObserver(this.handleMutations.bind(this));
+        this.mutationObserver.observe(this, { childList: true });
+      }
+    }
+
+    detachedCallback() {
+      this.shadowRoot.querySelector('ul').removeEventListener('click', this);
+    }
+
+    handleEvent(ev) {
+      if(ev.target.tagName === 'LI') {
+        this.setTabStatus(ev.target);
+      }
+    }
+
+    handleMutations(mutations) {
+      var wowTabs = this;
+      var handlers = [];
+      mutations.forEach(function(mutationRecord){
+          forEach.call(mutationRecord.addedNodes, function(node){
+            handlers.push(['add', node]);
+          });
+          forEach.call(mutationRecord.removedNodes, function(node){
+            handlers.push(['remove', node]);
+          });
+      });
+      if(handlers.length) {
+        requestAnimationFrame(function(){
+          var ul = wowTabs.shadowRoot.querySelector('ul');
+          handlers.forEach(function(notes){
+            var action = notes[0];
+            var panel = notes[1];
+            var tab;
+            if(action === 'add') {
+              tab = wowTabs.makeTab(panel);
+              wowTabs.tabMap.set(tab, panel);
+              wowTabs.panelMap.set(panel, tab);
+              wowTabs.makeInactive(tab);
+              ul.appendChild(tab);
+            } else {
+              tab = wowTabs.panelMap.get(panel);
+              tab.parentNode.removeChild(tab);
+              wowTabs.panelMap.delete(panel);
+              wowTabs.tabMap.delete(tab);
+              wowTabs.displayMap.delete(tab);
+            }
+          });
+        });
+      }
+    }
+
+    handleTitle(panel, title) {
+      var tab = this.panelMap.get(panel);
+      tab.textContent = panel.title;
+    }
+
+    makeTabsFromPanels() {
+      var ul = this.shadowRoot.querySelector('ul');
+      var panels = this.querySelectorAll('wow-panel');
+      [].forEach.call(panels, function(panel, idx){
+        var tab = this.makeTab(panel);
+        ul.appendChild(tab);
+        this.tabMap.set(tab, panel);
+        this.panelMap.set(panel, tab);
+
+        if(idx === 0) {
+          this.makeActive(tab);
+        } else {
+          panel.style.display = 'none';
+        }
+      }.bind(this));
+    }
+
+    makeTab(wowPanel) {
+      var tab = document.createElement('li');
+      tab.textContent = wowPanel.getAttribute('title');
+      this.displayMap.set(wowPanel, wowPanel.style.display);
+      return tab;
+    }
+
+    makeActive(tab) {
+      tab.classList.add('active');
+      var panel = this.tabMap.get(tab);
+      var naturalDisplay = this.displayMap.get(panel);
+      panel.style.display = naturalDisplay;
+    }
+
+    makeInactive(tab) {
+      tab.classList.remove('active');
+      var panel = this.tabMap.get(tab);
+      panel.style.display = 'none';
+    }
+
+    setTabStatus(active) {
+      if(active === this.selected) return;
+      this.selected = active;
+
+      var tabs = this.shadowRoot.querySelector('ul').children;
+      [].forEach.call(tabs, function(tab){
+        var fn = active === tab ? this.makeActive : this.makeInactive;
+        fn.call(this, tab);
+      }.bind(this));
+    }
+
+    /* Public API */
+    get position() {
+      return this.getAttribute("position") || "top";
+    }
+
+    set position(position) {
+      this.setAttribute("position", position);
+    }
+  }
+
+  document.registerElement('wow-panel', WowPanel);
+  document.registerElement('wow-tabs', WowTabs);
+})();
+</script>

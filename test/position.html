@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+  <title>wow-tabs[position] tests</title>
+  <script src="../node_modules/webcomponents.js/webcomponents.js"></script>
+  <link rel="import" href="../wowtabs.html">
+  <link rel="import" href="./mocha-test.html">
+</head>
+<body>
+<wow-tabs>
+  <wow-panel title="First">This is a panel.</wow-panel>
+  <wow-panel title="Second">This is another panel.</wow-panel>
+</wow-tabs>
+
+<mocha-test>
+  <template>
+    <script>
+     describe('wow-tabs[position]', function(){
+        var wowTabs = document.querySelector('wow-tabs');
+
+        afterEach(function(){
+          wowTabs.removeAttribute('position');
+        });
+
+        it('top is the default', function(){
+          assert.equal(wowTabs.position, 'top');
+        });
+
+        it('property is set by changing the attribute', function(){
+          wowTabs.setAttribute('position', 'bottom');
+          assert.equal(wowTabs.position, 'bottom');
+        });
+
+        it('attribute is set by changing the property', function(){
+          wowTabs.position = 'left';
+          assert.equal(wowTabs.getAttribute('position'), 'left');
+        });
+      });
+    </script>
+  </template>
+</mocha-test>
+</body>
+</html>

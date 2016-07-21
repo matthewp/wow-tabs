@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+  <title>Basics tabs</title>
+  <script src="../node_modules/webcomponents.js/webcomponents.js"></script>
+  <link rel="import" href="../wowtabs.html">
+  <style>
+    :root {
+      --tabs: {
+        background: blue;
+      }
+    }
+
+    wow-tabs {
+      width: 400px;
+      margin-bottom: 200px;
+    }
+  </style>
+</head>
+<body>
+  <wow-tabs>
+    <wow-panel title="First">Some text</wow-panel>
+    <wow-panel title="Second">More text</wow-panel>
+  </wow-tabs>
+
+  <button id="addPanel">Add panel</button>
+  <button id="removePanel">Remove panel</button>
+
+  <form id="titleChange">
+    <input type="text" name="title" placeholder="title"/>
+    <input type="submit" value="Change"/>
+  </form>
+
+  <script>
+    addPanel.addEventListener('click', function(){
+      var panel = document.createElement('wow-panel');
+      panel.title = 'Third';
+      panel.textContent = 'And even more!';
+      document.querySelector('wow-tabs').appendChild(panel);
+    });
+
+    removePanel.addEventListener('click', function(){
+      var tabs = document.querySelector('wow-tabs');
+      var panels = tabs.children;
+      tabs.removeChild(panels.item(0));
+    });
+
+    titleChange.addEventListener('submit', function(ev){
+      ev.preventDefault();
+      var input = ev.target.title;
+      var panel = document.querySelector('wow-tabs').children.item(0);
+      var value = input.value;
+      input.value = '';
+      panel.title = value;
+    });
+  </script>
+</body>
+</html>

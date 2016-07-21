@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+<head>
+  <title>wow-tabs tests</title>
+  <script src="../node_modules/webcomponents.js/webcomponents.js"></script>
+  <link rel="import" href="../wowtabs.html">
+  <script src="./helpers.js"></script>
+  <link rel="import" href="./mocha-test.html">
+</head>
+<body>
+<wow-tabs>
+  <wow-panel title="First">This is a panel.</wow-panel>
+  <wow-panel title="Second">This is another panel.</wow-panel>
+</wow-tabs>
+
+<mocha-test>
+  <template>
+    <script>
+      describe('wow-tabs', function(){
+        var wowTabs = document.querySelector('wow-tabs');
+        var helpers = makeTestHelpers(wowTabs);
+        var click = helpers.click;
+        var getTab = helpers.getTab;
+        var getPanel = helpers.getPanel;
+
+        afterEach(function(){
+          click(getTab(1));
+        });
+
+        it('switches to the selected tab', function(){
+          click(getTab(2));
+
+          assert.equal(getPanel(0).style.display, 'none');
+          assert.equal(getPanel(1).style.display, '');
+        });
+
+        describe('adding panels', function(){
+          before(function(done){
+            var newPanel = document.createElement('wow-panel');
+            newPanel.title = 'Third';
+            newPanel.textContent = 'Hello world';
+
+            wowTabs.appendChild(newPanel);
+            setTimeout(done, 10);
+          });
+
+          after(function(){
+            wowTabs.removeChild(getPanel(2));
+          });
+
+          it('will add a tab with the title', function(){
+            var tab = getTab(3);
+            assert.equal(tab.textContent, 'Third');
+          });
+
+          it('clicking the new tab works', function(){
+            click(getTab(3));
+            assert.equal(getPanel(0).style.display, 'none');
+            assert.equal(getPanel(1).style.display, 'none');
+            assert.equal(getPanel(2).style.display, '');
+          });
+        });
+      });
+    </script>
+  </template>
+</mocha-test>
+</body>
+</html>

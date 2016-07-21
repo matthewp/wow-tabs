@@ -1,0 +1,23 @@
+{
+  "name": "wowtabs",
+  "version": "1.0.0",
+  "description": "The last tabs implementation you'll ever need.",
+  "main": "wowtabs.html",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "testee --browsers firefox test/basics.html test/position.html"
+  },
+  "keywords": [
+    "tabs",
+    "web",
+    "components"
+  ],
+  "author": "Matthew Phillips",
+  "license": "BSD-2-Clause",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3"
+  }
+}
