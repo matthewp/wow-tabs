@@ -5,7 +5,7 @@
   <script src="../node_modules/webcomponents.js/webcomponents.js"></script>
   <link rel="import" href="../wowtabs.html">
   <script src="./helpers.js"></script>
-  <link rel="import" href="./mocha-test.html">
+  <link rel="import" href="../node_modules/mocha-test/mocha-test.html">
 </head>
 <body>
 <wow-tabs>
@@ -21,14 +21,15 @@
         var helpers = makeTestHelpers(wowTabs);
         var click = helpers.click;
         var getTab = helpers.getTab;
+        var getTabButton = helpers.getTabButton;
         var getPanel = helpers.getPanel;
 
         afterEach(function(){
-          click(getTab(1));
+          click(getTabButton(1));
         });
 
         it('switches to the selected tab', function(){
-          click(getTab(2));
+          click(getTabButton(2));
 
           assert.equal(getPanel(0).style.display, 'none');
           assert.equal(getPanel(1).style.display, '');
@@ -49,12 +50,12 @@
           });
 
           it('will add a tab with the title', function(){
-            var tab = getTab(3);
+            var tab = getTabButton(3);
             assert.equal(tab.textContent, 'Third');
           });
 
           it('clicking the new tab works', function(){
-            click(getTab(3));
+            click(getTabButton(3));
             assert.equal(getPanel(0).style.display, 'none');
             assert.equal(getPanel(1).style.display, 'none');
             assert.equal(getPanel(2).style.display, '');

@@ -1,8 +1,19 @@
+<template class="panel-template">
+  <style>
+    :host {
+      display: block;
+    }
+  </style>
+  <div role="tabpanel">
+    <content></content>
+  </div>
+</template>
 <template class="tabs-template">
   <style>
     :host {
       display: flex;
       flex-direction: column;
+      --tabs-bg-color: #E6E6E6;
     }
 
     :host([position=bottom]) ul {
@@ -25,34 +36,69 @@
     }
 
     li {
-      cursor: pointer;
       flex: inherit;
       color: inherit;
-      background: #E6E6E6;
+    }
+
+    li, li button {
+      cursor: pointer;
+    }
+
+    li button {
+      font: inherit;
+      border: none;
+      background-color: transparent;
+      -webkit-appearance: none;
       padding: .5em 1em;
-      margin-right: .2em;
+    }
+
+    li button:focus {
+      outline: none;
+    }
+
+    li.active {
+      background: var(--tabs-bg-color);
+    }
+
+    li:not(.active) {
+      border-bottom: 1px solid var(--tabs-bg-color);
     }
   </style>
-  <ul></ul>
+  <ul role="tablist"></ul>
   <div>
     <content></content>
   </div>
+</template>
+<template class="tab-template">
+  <li role="tab">
+    <button></button>
+  </li>
 </template>
 <script>
 (function(){
   var doc = (document._currentScript || document.currentScript).ownerDocument;
   var tabsTemplate = doc.querySelector('.tabs-template');
+  var tabTemplate = doc.querySelector('.tab-template');
+  var panelTemplate = doc.querySelector('.panel-template');
   var forEach = Array.prototype.forEach;
 
-  shimStyles(tabsTemplate.content);
+  shimStyles(tabsTemplate.content, 'wow-tabs');
+  shimStyles(panelTemplate.content, 'wow-panel');
 
-  function shimStyles(root) {
+  function shimStyles(root, name) {
     if (window.ShadowDOMPolyfill) {
-      WebComponents.ShadowCSS.shimStyling(root, 'wow-tabs');
+      WebComponents.ShadowCSS.shimStyling(root, name);
     }
   }
 
   class WowPanel extends HTMLElement {
+    attachedCallback() {
+      this.createShadowRoot();
+      this.shadowRoot.appendChild(
+        document.importNode(panelTemplate.content, true)
+      );
+    }
+
     attributeChangedCallback(attributeName, oldValue, newValue) {
       if(attributeName === 'title') {
         this.informParentTabs(newValue);
@@ -104,8 +150,8 @@
     }
 
     handleEvent(ev) {
-      if(ev.target.tagName === 'LI') {
-        this.setTabStatus(ev.target);
+      if(ev.target.tagName === 'BUTTON') {
+        this.setTabStatus(ev.target.parentNode);
       }
     }
 
@@ -168,8 +214,10 @@
     }
 
     makeTab(wowPanel) {
-      var tab = document.createElement('li');
-      tab.textContent = wowPanel.getAttribute('title');
+      var frag = document.importNode(tabTemplate.content, true);
+      var tab = frag.firstElementChild;
+      var button = tab.firstElementChild;
+      button.textContent = wowPanel.getAttribute('title');
       this.displayMap.set(wowPanel, wowPanel.style.display);
       return tab;
     }

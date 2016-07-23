@@ -8,6 +8,10 @@ window.makeTestHelpers = function(wowTabs){
     return wowTabs.shadowRoot.querySelector('li:nth-child(' + idx + ')')
   }
 
+  function getTabButton(idx) {
+    return getTab(idx).firstElementChild;
+  }
+
   function getPanel(idx) {
     return wowTabs.children.item(idx);
   }
@@ -19,6 +23,7 @@ window.makeTestHelpers = function(wowTabs){
 
   return {
     getTab: getTab,
+    getTabButton: getTabButton,
     getPanel: getPanel,
     click: click
   };

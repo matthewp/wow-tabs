@@ -2,18 +2,22 @@
 <html>
 <head>
   <title>Basics tabs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="../node_modules/webcomponents.js/webcomponents.js"></script>
   <link rel="import" href="../wowtabs.html">
   <style>
-    :root {
-      --tabs: {
-        background: blue;
-      }
+    body {
+      font-family: Verdana,sans-serif;
     }
 
     wow-tabs {
       width: 400px;
       margin-bottom: 200px;
+    }
+
+    wow-panel {
+      font-size: 115%;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -21,6 +25,7 @@
   <wow-tabs>
     <wow-panel title="First">Some text</wow-panel>
     <wow-panel title="Second">More text</wow-panel>
+    <wow-panel title="Third">Even more text</wow-panel>
   </wow-tabs>
 
   <button id="addPanel">Add panel</button>
