@@ -5,7 +5,7 @@
     }
   </style>
   <div role="tabpanel">
-    <content></content>
+    <slot></slot>
   </div>
 </template>
 <template class="tabs-template">
@@ -66,7 +66,7 @@
   </style>
   <ul role="tablist"></ul>
   <div>
-    <content></content>
+    <slot></slot>
   </div>
 </template>
 <template class="tab-template">
@@ -92,11 +92,19 @@
   }
 
   class WowPanel extends HTMLElement {
-    attachedCallback() {
-      this.createShadowRoot();
-      this.shadowRoot.appendChild(
-        document.importNode(panelTemplate.content, true)
-      );
+    constructor() {
+      super();
+      this.attachShadow({mode: 'open' });
+      this._rendered = false;
+    }
+
+    connectedCallback() {
+      if(!this._rendered) {
+        this.shadowRoot.appendChild(
+          document.importNode(panelTemplate.content, true)
+        );
+        this._rendered = true;
+      }
     }
 
     attributeChangedCallback(attributeName, oldValue, newValue) {
@@ -111,6 +119,7 @@
 
     set title(title) {
       this.setAttribute('title', title);
+      this.informParentTabs(title);
     }
 
     informParentTabs(title) {
@@ -122,18 +131,24 @@
   }
 
   class WowTabs extends HTMLElement {
-    createdCallback() {
+    constructor() {
+      super();
       this.selected = null;
       this.tabMap = new WeakMap();
       this.panelMap = new WeakMap();
       this.displayMap = new WeakMap();
+      this.attachShadow({ mode: 'open' });
+      this._rendered = false;
+      this.mutationObserver = null;
     }
 
-    attachedCallback() {
-      this.createShadowRoot();
-      this.shadowRoot.appendChild(
-        document.importNode(tabsTemplate.content, true)
-      );
+    connectedCallback() {
+      if(!this._rendered) {
+        this.shadowRoot.appendChild(
+          document.importNode(tabsTemplate.content, true)
+        );
+        this._rendered = true;
+      }
 
       this.makeTabsFromPanels();
 
@@ -145,7 +160,7 @@
       }
     }
 
-    detachedCallback() {
+    disconnectedCallback() {
       this.shadowRoot.querySelector('ul').removeEventListener('click', this);
     }
 
@@ -193,7 +208,8 @@
 
     handleTitle(panel, title) {
       var tab = this.panelMap.get(panel);
-      tab.textContent = panel.title;
+      var btn = tab.firstElementChild;
+      btn.textContent = title;
     }
 
     makeTabsFromPanels() {
@@ -256,7 +272,7 @@
     }
   }
 
-  document.registerElement('wow-panel', WowPanel);
-  document.registerElement('wow-tabs', WowTabs);
+  customElements.define('wow-panel', WowPanel);
+  customElements.define('wow-tabs', WowTabs);
 })();
 </script>
