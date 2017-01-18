@@ -82,15 +82,6 @@
   var panelTemplate = doc.querySelector('.panel-template');
   var forEach = Array.prototype.forEach;
 
-  shimStyles(tabsTemplate.content, 'wow-tabs');
-  shimStyles(panelTemplate.content, 'wow-panel');
-
-  function shimStyles(root, name) {
-    if (window.ShadowDOMPolyfill) {
-      WebComponents.ShadowCSS.shimStyling(root, name);
-    }
-  }
-
   class WowPanel extends HTMLElement {
     constructor() {
       super();
@@ -175,10 +166,12 @@
       var handlers = [];
       mutations.forEach(function(mutationRecord){
           forEach.call(mutationRecord.addedNodes, function(node){
-            handlers.push(['add', node]);
+            if(node.nodeType === 1)
+              handlers.push(['add', node]);
           });
           forEach.call(mutationRecord.removedNodes, function(node){
-            handlers.push(['remove', node]);
+            if(node.nodeType === 1)
+              handlers.push(['remove', node]);
           });
       });
       if(handlers.length) {
@@ -214,10 +207,13 @@
 
     makeTabsFromPanels() {
       var ul = this.shadowRoot.querySelector('ul');
+
+      console.log('huh', ul);
       var panels = this.querySelectorAll('wow-panel');
       [].forEach.call(panels, function(panel, idx){
         var tab = this.makeTab(panel);
         ul.appendChild(tab);
+
         this.tabMap.set(tab, panel);
         this.panelMap.set(panel, tab);
 

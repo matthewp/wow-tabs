@@ -1,4 +1,4 @@
-# wow-tabs
+# &lt;wow-tabs&gt;
 
 The last tabs you'll ever need.
 
