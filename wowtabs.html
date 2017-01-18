@@ -5,7 +5,7 @@
     }
   </style>
   <div role="tabpanel">
-    <content></content>
+    <slot></slot>
   </div>
 </template>
 <template class="tabs-template">
@@ -66,7 +66,7 @@
   </style>
   <ul role="tablist"></ul>
   <div>
-    <content></content>
+    <slot></slot>
   </div>
 </template>
 <template class="tab-template">
@@ -82,21 +82,20 @@
   var panelTemplate = doc.querySelector('.panel-template');
   var forEach = Array.prototype.forEach;
 
-  shimStyles(tabsTemplate.content, 'wow-tabs');
-  shimStyles(panelTemplate.content, 'wow-panel');
-
-  function shimStyles(root, name) {
-    if (window.ShadowDOMPolyfill) {
-      WebComponents.ShadowCSS.shimStyling(root, name);
-    }
-  }
-
   class WowPanel extends HTMLElement {
-    attachedCallback() {
-      this.createShadowRoot();
-      this.shadowRoot.appendChild(
-        document.importNode(panelTemplate.content, true)
-      );
+    constructor() {
+      super();
+      this.attachShadow({mode: 'open' });
+      this._rendered = false;
+    }
+
+    connectedCallback() {
+      if(!this._rendered) {
+        this.shadowRoot.appendChild(
+          document.importNode(panelTemplate.content, true)
+        );
+        this._rendered = true;
+      }
     }
 
     attributeChangedCallback(attributeName, oldValue, newValue) {
@@ -111,6 +110,7 @@
 
     set title(title) {
       this.setAttribute('title', title);
+      this.informParentTabs(title);
     }
 
     informParentTabs(title) {
@@ -122,18 +122,24 @@
   }
 
   class WowTabs extends HTMLElement {
-    createdCallback() {
+    constructor() {
+      super();
       this.selected = null;
       this.tabMap = new WeakMap();
       this.panelMap = new WeakMap();
       this.displayMap = new WeakMap();
+      this.attachShadow({ mode: 'open' });
+      this._rendered = false;
+      this.mutationObserver = null;
     }
 
-    attachedCallback() {
-      this.createShadowRoot();
-      this.shadowRoot.appendChild(
-        document.importNode(tabsTemplate.content, true)
-      );
+    connectedCallback() {
+      if(!this._rendered) {
+        this.shadowRoot.appendChild(
+          document.importNode(tabsTemplate.content, true)
+        );
+        this._rendered = true;
+      }
 
       this.makeTabsFromPanels();
 
@@ -145,7 +151,7 @@
       }
     }
 
-    detachedCallback() {
+    disconnectedCallback() {
       this.shadowRoot.querySelector('ul').removeEventListener('click', this);
     }
 
@@ -160,10 +166,12 @@
       var handlers = [];
       mutations.forEach(function(mutationRecord){
           forEach.call(mutationRecord.addedNodes, function(node){
-            handlers.push(['add', node]);
+            if(node.nodeType === 1)
+              handlers.push(['add', node]);
           });
           forEach.call(mutationRecord.removedNodes, function(node){
-            handlers.push(['remove', node]);
+            if(node.nodeType === 1)
+              handlers.push(['remove', node]);
           });
       });
       if(handlers.length) {
@@ -193,15 +201,19 @@
 
     handleTitle(panel, title) {
       var tab = this.panelMap.get(panel);
-      tab.textContent = panel.title;
+      var btn = tab.firstElementChild;
+      btn.textContent = title;
     }
 
     makeTabsFromPanels() {
       var ul = this.shadowRoot.querySelector('ul');
+
+      console.log('huh', ul);
       var panels = this.querySelectorAll('wow-panel');
       [].forEach.call(panels, function(panel, idx){
         var tab = this.makeTab(panel);
         ul.appendChild(tab);
+
         this.tabMap.set(tab, panel);
         this.panelMap.set(panel, tab);
 
@@ -256,7 +268,7 @@
     }
   }
 
-  document.registerElement('wow-panel', WowPanel);
-  document.registerElement('wow-tabs', WowTabs);
+  customElements.define('wow-panel', WowPanel);
+  customElements.define('wow-tabs', WowTabs);
 })();
 </script>
