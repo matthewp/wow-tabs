@@ -6,7 +6,7 @@ The last tabs you'll ever need. &lt;wow-tabs&gt; makes it easy to define ...
 ```
 <custom-element-demo>
   <template>
-    <link rel="import" href="wowtabs.html">
+    <link rel="import" href="./wowtabs.html">
     <style>
       wow-tabs {
         width: 400px;
@@ -24,7 +24,7 @@ The last tabs you'll ever need. &lt;wow-tabs&gt; makes it easy to define ...
 ```
 -->
 ```html
-<wow-tabs position="bottom">
+<wow-tabs position="top">
   <wow-panel title="First">Some text</wow-panel>
   <wow-panel title="Second">More text</wow-panel>
 </wow-tabs>
