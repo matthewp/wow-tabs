@@ -47,6 +47,13 @@ The **position** attribute controls where the tabs are positioned next to the pa
 * **bottom** positions the tabs below the content.
 * **right** positions the tabs to the right of the content.
 
+```html
+<wow-tabs position="right">
+  <wow-panel title="One">The is the first panel</wow-panel>
+  <wow-panel title="Two">This is the second panel</wow-panel>
+</wow-tabs>
+```
+
 ### &lt;wow-panel&gt;
 
 A **wow-panel** is a section of content that will be displayed when its associated tab is selected. Any HTML can be contained within a wow-panel.
